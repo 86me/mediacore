@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+import mimetypes
 from pylons import config, request
 
 __all__ = [
@@ -40,7 +41,6 @@ mimetype_lookup = {
     'm4a':  'audio/mp4',
     'm4v':  'video/mp4',
     'mp3':  'audio/mpeg',
-    'mp4':  'audio/mp4', # This is not strictly true. It could contain video.
     'flac': 'audio/flac',
     '3gp':  'video/3gpp',
     '3g2':  'video/3gpp',
@@ -51,9 +51,11 @@ mimetype_lookup = {
     'mov':  'video/quicktime',
     'mpeg': 'video/mpeg',
     'mpg':  'video/mpeg',
+    'mp4':  'video/mp4', # This is not strictly true. It could contain audio.
     'qt':   'video/quicktime',
     'vob':  'video/x-vob', # multiplexed container format
     'wmv':  'video/x-ms-wmv',
+    'ogg':  'application/ogg',
 }
 
 # Default container format (and also file extension) for each mimetype we allow
@@ -96,7 +98,7 @@ external_embedded_containers = {
 # The container types that will be considered to be 'encoded', and thus ready
 # for playing, when they are uploaded.
 playable_containers = {
-    'audio': ('mp3', 'mp4', 'm4a'),
+    'audio': ('mp3', 'flac', 'm4a'),
     'video': ('flv', 'mp4', 'm4v'),
     None: (),
 }
@@ -129,11 +131,11 @@ html5_supported_containers_codecs = {
         (10.5, 'ogg', ['theora', 'vorbis']),
     ],
     'chrome': [
-        (3.0, 'ogg', ['theora', 'vorbis']),
-        (3.0, 'mp4', ['h264', 'aac']),
-        (3.0, 'mp4', ['h264b', 'aacl']),
         (3.0, 'm4v', ['h264', 'aac']),
         (3.0, 'm4v', ['h264b', 'aacl']),
+        (3.0, 'mp4', ['h264', 'aac']),
+        (3.0, 'mp4', ['h264b', 'aacl']),
+        (3.0, 'ogg', ['theora', 'vorbis']),
     ],
     'safari': [
         (522, 'mp4', ['h264', 'aac']), # revision 522 was introduced in version 3.0
@@ -188,6 +190,8 @@ def supported_html5_types():
     """Return the user agent's supported HTML5 video containers and codecs.
     """
     browser, version = parse_user_agent_version()
+    print "browser: "+browser
+    print "version: "+version
     scc = html5_supported_containers_codecs[browser]
     html5_options = []
 
@@ -204,7 +208,8 @@ def guess_container_format(extension):
     :rtype: string or None
     """
     try:
-        mt = mimetype_lookup[extension]
+        mimetypes.init()
+        mt = mimetypes.types_map["."+extension]
         cf = container_lookup[mt]
         return cf
     except KeyError:

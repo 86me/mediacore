@@ -76,6 +76,11 @@ def url_for(*args, **kwargs):
     if kwargs:
         kwargs = dict( (key, to_utf8(val)) for key, val in kwargs.items() )
 
+    print "args:"
+    print args
+    print "kwargs:"
+    print kwargs
+
     # TODO: Rework templates so that we can avoid using .current, and use named
     # routes, as described at http://routes.groovie.org/manual.html#generating-routes-based-on-the-current-url
     # NOTE: pylons.url is a StackedObjectProxy wrapping the routes.url method.

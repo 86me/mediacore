@@ -20,6 +20,7 @@
 
 	<py:def function="media_player(media, width=479, height=383, autoplay=False, autobuffer=False, qualified=False)" py:choose=""
 	        py:with="file, player = h.pick_media_file_player(media.files)">
+                <span>Player: ${player}</span>
 		<py:when test="file is None" />
 		<py:when test="player == 'embed'" py:with="heights = {'youtube': 25, 'google': 27}; height = height + heights.get(file.container, 0)">
 			<object type="application/x-shockwave-flash"
@@ -87,6 +88,7 @@
 			</script>
 		</py:when>
 		<py:when test="player == 'html5'" py:choose="file.type">
+                        file.type: ${file.type}
 			<audio py:when="'audio'" src="${file.play_url(qualified=qualified)}" controls="controls" height="${height}" width="${width}">
 				If your browser supported HTML5, you'd be seeing a video here instead of this text!
 			</audio>
